@@ -40,7 +40,13 @@ export const {
 
       return token;
     },
-    async signIn({ account, profile }) {
+    async signIn({ user, account, profile }) {
+      if (account?.provider !== "credentials") return true;
+
+      const existingUser = await getUserById(user.id);
+
+      if (!existingUser?.emailVerified) return false;
+
       return true;
     },
   },
