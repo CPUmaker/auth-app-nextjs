@@ -44,8 +44,18 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
+  is2FaEnabled  Boolean   @default(false)
   role          UserRole  @default(USER)
   accounts      Account[]
+  TwoFactor     TwoFactorConfirmation?
+}
+
+model TwoFactorConfirmation {
+  id      String  @id @default(cuid())
+  userId  String
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
 }
 
 model VerificationToken {
@@ -58,6 +68,15 @@ model VerificationToken {
 }
 
 model PasswordResetToken {
+  id      String    @id @default(cuid())
+  email   String
+  token   String    @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model TwoFactorToken {
   id      String    @id @default(cuid())
   email   String
   token   String    @unique
