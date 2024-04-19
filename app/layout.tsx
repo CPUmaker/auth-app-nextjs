@@ -3,6 +3,7 @@ import { SessionProvider } from "next-auth/react";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { auth } from "@/auth";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,7 +22,10 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <SessionProvider session={session}>
-        <body className={inter.className}>{children}</body>
+        <body className={inter.className}>
+          <Toaster />
+          {children}
+        </body>
       </SessionProvider>
     </html>
   );
