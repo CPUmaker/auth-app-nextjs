@@ -18,14 +18,18 @@ export const {
   },
   callbacks: {
     async session({ session, token }) {
-      console.log({ session });
+      if (!session.user) return session;
 
-      if (token.sub && session.user) {
+      if (token.sub) {
         session.user.id = token.sub;
       }
 
-      if (token.role && session.user) {
+      if (token.role) {
         session.user.role = token.role;
+      }
+
+      if (token.is2FaEnabled) {
+        session.user.is2FaEnabled = token.is2FaEnabled;
       }
 
       return session;
@@ -37,6 +41,7 @@ export const {
 
       if (user) {
         token.role = user.role;
+        token.is2FaEnabled = user.is2FaEnabled;
       }
 
       return token;
