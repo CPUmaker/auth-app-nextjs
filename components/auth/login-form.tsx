@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 import { login } from "@/actions/login";
@@ -22,12 +22,11 @@ import { CardWrapper } from "@/components/auth/card-wrapper";
 import { FormError } from "@/components/form-error";
 import { FormSuccess } from "@/components/form-success";
 import { LoginSchema } from "@/schemas";
-import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 
 export const LoginForm = () => {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
+  const callbackUrl = searchParams.get("callbackUrl");
   const urlError =
     searchParams.get("error") === "OAuthAccountNotLinked"
       ? "Email already in use with different provider!"
@@ -52,7 +51,7 @@ export const LoginForm = () => {
     setSuccess("");
 
     startTransition(() => {
-      login(values)
+      login(values, callbackUrl)
         .then((data) => {
           if (data.error) {
             form.reset();
@@ -60,7 +59,6 @@ export const LoginForm = () => {
           } else if (data.success) {
             form.reset();
             setSuccess(data.success);
-            router.push(DEFAULT_LOGIN_REDIRECT);
           } else if (data.twoFactor) {
             setShowTwoFactor(true);
           }

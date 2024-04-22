@@ -16,7 +16,7 @@ import { getTwoFactorTokenByEmail } from "@/data/two-factor-token";
 import { db } from "@/lib/db";
 import { getTwoFactorConfirmationByUserId } from "@/data/two-factor-confirmation";
 
-export const login = async (values: z.infer<typeof LoginSchema>) => {
+export const login = async (values: z.infer<typeof LoginSchema>, callbackUrl: string | null) => {
   const validatedFields = LoginSchema.safeParse(values);
 
   if (!validatedFields.success) {
@@ -72,7 +72,7 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
   }
 
   try {
-    await signIn("credentials", { email, password, redirect: false });
+    await signIn("credentials", { email, password, redirectTo: callbackUrl || DEFAULT_LOGIN_REDIRECT });
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
@@ -82,12 +82,13 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
           return { error: "Something went wrong!" };
       }
     }
+    throw error;
   }
   return { success: "Successfully login!" };
 };
 
-export const socialLogin = async (provider: "github" | "google") => {
+export const socialLogin = async (provider: "github" | "google", callbackUrl: string | null) => {
   await signIn(provider, {
-    redirectTo: DEFAULT_LOGIN_REDIRECT,
+    redirectTo: callbackUrl || DEFAULT_LOGIN_REDIRECT,
   });
 };
